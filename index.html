@@ -59,16 +59,6 @@
       cursor: pointer;
     }
 
-    .go-bone {
-      z-index: 1000;
-      border: 3px solid rgb(248, 184, 6);
-      background: rgba(248, 184, 6, 0.2);
-      width: 50px;
-      height: 50px;
-      position: absolute;
-      cursor: pointer;
-    }
-
     .piece {
       line-height: 50px;
       text-align: center;
@@ -87,13 +77,6 @@
 
     .teamii {
       background-color: blue;
-    }
-
-    .instr {
-      background: grey;
-      position: unset;
-      display: inline-block;
-      margin-right: 0.5em;
     }
 
     #control {
@@ -159,21 +142,15 @@
       <div id="player" style="background: red; margin: 8px;" class="little-square"></div>
       <b id="raise" style="font-size: 1.2em;">5</b>
     </div>
-    <!-- <div style="font-size:200%;width:100%;text-align:center;">
-      <span id="red-score" style="color:red">0</span> :
-      <span id="blue-score" style="color:blue">0</span>
-    </div> -->
   </div>
 
   <div class="card" id="control">
-    <!-- <img id="control-img" src="../../img/lyf.gif" style="height: 100px;"><br> -->
     <b id="control-name"></b>
     <div id="blood"></div>
     <div id="attack">
       <img src="img/sword.png" style="width:25px;vertical-align:middle;">
       = <span id="bone"></span>
     </div>
-    <div id="effect" style="margin-top:5px;"></div>
   </div>
 
   <div class="button" onclick="giveUp()" style="position: absolute; bottom: 5px; left: 8px;">
@@ -184,22 +161,6 @@
   </div>
 
   <div id="go"></div>
-
-  <!-- <div style="position:absolute;top:0px;left:600px;">
-    <div class="piece instr">姚</div>Blood=2, Attack=2
-  </div>
-  <div style="position:absolute;top:50px;left:600px;">
-    <div class="piece instr">华</div>Blood=2, Attack=2
-  </div>
-  <div style="position:absolute;top:100px;left:600px;">
-    <div class="piece instr">马</div>Blood=2, Attack=2
-  </div>
-  <div style="position:absolute;top:150px;left:600px;">
-    <div class="piece instr">贾</div>Blood=2, Attack=2
-  </div>
-  <div style="position:absolute;top:200px;left:600px;">
-    <div class="piece instr">猴</div>Blood=2, Attack=2
-  </div> -->
 
   <div id="help" style="display:none;">
     <div style="text-align: left;">
