@@ -20,7 +20,6 @@
     table tr th,
     table tr td {
       width: 50px;
-      background-size: contain !important;
     }
 
     table tr {
@@ -40,7 +39,7 @@
     }
 
     .go-empty {
-      z-index: 1000;
+      z-index: 100;
       border: 3px solid rgb(6, 248, 127);
       background: rgba(6, 248, 127, 0.2);
       width: 50px;
@@ -50,7 +49,7 @@
     }
 
     .go-kill {
-      z-index: 1000;
+      z-index: 100;
       border: 3px solid rgb(248, 75, 6);
       background: rgba(248, 75, 6, 0.2);
       width: 50px;
@@ -81,11 +80,11 @@
 
     #control {
       position: absolute;
-      left: 8px;
-      top: 59px;
+      left: 467px;
+      top: 8px;
       padding: 20px 20px 10px 20px;
       display: none;
-      z-index: 990;
+      z-index: 100;
       border: 1px solid rgba(0, 0, 0, 0.15);
       border-radius: 3px;
       box-shadow: 0 6px 12px rgb(0 0 0 / 18%);
@@ -127,6 +126,33 @@
       margin-top: 0.5em;
       font-weight: bold;
     }
+
+    .sword-img {
+      z-index: 3;
+      top: 3px;
+      left: 18px;
+      position: absolute;
+    }
+
+    .armor-img {
+      z-index: 3;
+      top: 32px;
+      left: 18px;
+      position: absolute;
+    }
+
+    .item-img {
+      cursor: pointer;
+    }
+
+    .frozen-img {
+      position: relative;
+      top: 0;
+      left: 0;
+      z-index: 5;
+      opacity: 0.92;
+      width: 45px;
+    }
   </style>
   <script src="jquery-3.3.1.min.js"></script>
   <script src="bootstrap.bundle.min.js"></script>
@@ -140,18 +166,15 @@
     </table>
     <div style="text-align: center">
       <div id="player" style="background: red; margin: 8px;" class="little-square"></div>
-      <b id="raise" style="font-size: 1.2em;">5</b>
     </div>
   </div>
 
   <div class="card" id="control">
     <b id="control-name"></b>
     <div id="blood"></div>
-    <div id="attack">
-      <img src="img/sword.png" style="width:25px;vertical-align:middle;">
-      = <span id="bone"></span>
-    </div>
+    <div id="item"></div>
   </div>
+  <div id="go"></div>
 
   <div class="button" onclick="giveUp()" style="position: absolute; bottom: 5px; left: 8px;">
     <img src="img/flag_black_24dp.png">
@@ -159,29 +182,125 @@
   <div class="button" onclick="cAlert($('#help').html())" style="position: absolute; bottom: 5px; left: 56px;">
     <img src="img/help_black_24dp.png">
   </div>
-
-  <div id="go"></div>
+  <div style="position: absolute; bottom: 5px; right: 8px;">Version 0.2.0</div>
 
   <div id="help" style="display:none;">
     <div style="text-align: left;">
-      <h5>规则说明（简略）</h5>
+      <h5>规则说明</h5>
       <ul>
         <li>Kess的目标是吃掉对方的王。</li>
-        <li>每五回合，中央九格内的所有棋子都会增加半颗心的攻击力，上限两颗心。</li>
+        <li>中央九格会随机出现装备和道具，可以捡起。先点击棋子，再点击弹出框内的道具图标，即可使用道具。</li>
+        <li>游戏机制有复活、击退、吃棋获得装备和道具（仅限正常攻击，道具攻击除外）等。</li>
+        <li>提示：喝药水不消耗回合数，也就是说，你可以在一回合内喝任意多瓶药水，然后再走一步棋。</li>
       </ul>
-      <h5>规则说明（详细）</h5>
-      <ul>
-        <li>Kess的目标是吃掉对方的王，王是一枚既不能移动也不能进行攻击的棋子。</li>
-        <li>棋盘中央的九个紫色边框的格子叫做贾森区。每五回合，该区域内的所有棋子都会增加半颗心的攻击力，<b>上限两颗心</b>，
-          同时棋子上会出现若干星星作为标记。棋盘下方的小数字表示距离下一次增加攻击力的回合数。</li>
-        <li>被吃掉的棋子会在五回合后复活。</li>
-        <li>除王外所有棋子的初始血量为五颗心，攻击为半颗心。</li>
-        <li>棋子的移动规则很简单，自己研究。</li>
-        <li>受到攻击的棋子会被向后击退一格（横、竖或斜均可）。</li>
-        <li>你吃掉对方棋子后，若被吃者的攻击比你的攻击高，你的攻击将被提高到和被吃者相同。（你可以认为，是被吃者的星星转移到了你的身上。）</li>
-      </ul>
+      <table>
+        <tr>
+          <th style="width:6em">装备类型</th>
+          <th style="width:5em">图标</th>
+          <th style="width:7em">剑的攻击力</th>
+          <th style="width:7em">盔甲防御力</th>
+        </tr>
+        <tr>
+          <td>钻石</td>
+          <td>
+            <div data-sprite="2"></div>
+            <div data-sprite="5"></div>
+          </td>
+          <td>
+            <div data-blood="5"></div>
+          </td>
+          <td>-<div data-blood="3"></div>
+          </td>
+        </tr>
+        <tr>
+          <td>金</td>
+          <td>
+            <div data-sprite="1"></div>
+            <div data-sprite="4"></div>
+          </td>
+          <td>
+            <div data-blood="4"></div>
+          </td>
+          <td>-<div data-blood="2"></div>
+          </td>
+        </tr>
+        <tr>
+          <td>铁</td>
+          <td>
+            <div data-sprite="0"></div>
+            <div data-sprite="3"></div>
+          </td>
+          <td>
+            <div data-blood="3"></div>
+          </td>
+          <td>-<div data-blood="1"></div>
+          </td>
+        </tr>
+      </table>
+      <br>
+      <table>
+        <tr>
+          <th style="width: 6em">道具名称</th>
+          <th style="width: 5em">图标</th>
+          <th style="width: 14em">作用</th>
+        </tr>
+        <tr>
+          <td>TNT</td>
+          <td>
+            <div data-sprite="6"></div>
+          </td>
+          <td>
+            使附近的敌方棋子受到伤害。
+            <img src="img/tnt-instr.png" style="width:13em">
+            （数字代表<div data-blood="1"></div>的个数。）
+          </td>
+        </tr>
+        <tr>
+          <td>治疗药水</td>
+          <td>
+            <div data-sprite="7"></div>
+          </td>
+          <td>立即回满血量。</td>
+        </tr>
+        <tr>
+          <td>迅捷药水</td>
+          <td>
+            <div data-sprite="8"></div>
+          </td>
+          <td>一定时间内可以走到方圆3格内的任意一格。</td>
+        </tr>
+        <tr>
+          <td>力量药水</td>
+          <td>
+            <div data-sprite="9"></div>
+          </td>
+          <td>一定时间内攻击增加<div data-blood="2"></div>。
     </div>
+    </td>
+    </tr>
+    <tr>
+      <td>冰</td>
+      <td>
+        <div data-sprite="10"></div>
+      </td>
+      <td>周围八格敌方棋子冰冻一定时间。冰可以被TNT炸毁。</td>
+    </tr>
+    </table>
   </div>
+  </div>
+  <script>
+    $("[data-sprite]").each(function () {
+      $(this).css(spriteCssObj(supplySprite[Number($(this).attr("data-sprite"))], 20));
+    });
+    $("[data-blood]").each(function () {
+      var blood = Number($(this).attr("data-blood"));
+      for (let i = 1; i * 2 <= blood; i++)
+        $(this).append(`<img src="img/heart.png" style="width: 20px">`);
+      if (blood % 2)
+        $(this).append(`<img src="img/heart-half.png" style="width: 20px">`);
+      $(this).css("display", "inline-block");
+    });
+  </script>
 </body>
 
 </html>
