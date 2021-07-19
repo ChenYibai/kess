@@ -1,18 +1,4 @@
 # Kess
-Please play [here](https://chenyibai.github.io/kess/).
-## Changelog
-### Version 0.2.0
-* This is a great update!
-* Changed the supply system: the central area will produce equipments for you to pick up.
-* Added equipments and items:
-    - Diamond/Golden/Iron sword
-    - Diamond/Golden/Iron chestplate
-    - TNT
-    - Potion of healing
-    - Potion of swiftness
-    - Potion of strength
-    - Ice
-* Raised 王's initial blood to 10 (Heart * 5)
-* Slightly changed the UI
-### Version 0.1.0
-* Initial version
+Please play [here](https://chenyibai.github.io/kess/).  
+This is an interesting H5 chess game which is based on [MaxYellow-Yu](https://github.com/MaxYellow-Yu)'s [chess](https://maxyellow-yu.github.io/school/app/chess/).  
+For help and changelog, see [here](https://chenyibai.github.io/kess/).  

@@ -122,7 +122,8 @@
       margin-top: 2px;
     }
 
-    .modal h5 {
+    .modal h5,
+    .modal h4 {
       margin-top: 0.5em;
       font-weight: bold;
     }
@@ -182,22 +183,24 @@
   <div class="button" onclick="cAlert($('#help').html())" style="position: absolute; bottom: 5px; left: 56px;">
     <img src="img/help_black_24dp.png">
   </div>
-  <div style="position: absolute; bottom: 5px; right: 8px;">Version 0.2.0</div>
+  <div class="button" onclick="cAlert($('#version').html())" style="position: absolute; bottom: 5px; left: 104px;">
+    <img src="img/changelog.png">
+  </div>
 
   <div id="help" style="display:none;">
     <div style="text-align: left;">
       <h5>规则说明</h5>
       <ul>
-        <li>Kess的目标是吃掉对方的王。</li>
-        <li>中央九格会随机出现装备和道具，可以捡起。先点击棋子，再点击弹出框内的道具图标，即可使用道具。</li>
-        <li>游戏机制有复活、击退、吃棋获得装备和道具（仅限正常攻击，道具攻击除外）等。</li>
+        <li>Kess的目标是吃掉对方的王，然后吃掉对方所有棋子。失去王后该队棋子不能复活。</li>
+        <li>棋盘内会随机出现装备和道具，可以捡起。先点击棋子，再点击弹出框内的道具图标，即可使用道具。</li>
+        <li>游戏有击退、吃棋获得装备和道具（仅限正常攻击，道具攻击除外）的机制。</li>
         <li>提示：喝药水不消耗回合数，也就是说，你可以在一回合内喝任意多瓶药水，然后再走一步棋。</li>
       </ul>
       <table>
         <tr>
-          <th style="width:6em">装备类型</th>
+          <th style="width:5.5em">装备类型</th>
           <th style="width:5em">图标</th>
-          <th style="width:7em">剑的攻击力</th>
+          <th style="width:7.5em">剑的攻击力</th>
           <th style="width:7em">盔甲防御力</th>
         </tr>
         <tr>
@@ -207,9 +210,9 @@
             <div data-sprite="5"></div>
           </td>
           <td>
-            <div data-blood="5"></div>
+            <div data-blood="9"></div>
           </td>
-          <td>-<div data-blood="3"></div>
+          <td>-<div data-blood="4"></div>
           </td>
         </tr>
         <tr>
@@ -219,7 +222,7 @@
             <div data-sprite="4"></div>
           </td>
           <td>
-            <div data-blood="4"></div>
+            <div data-blood="7"></div>
           </td>
           <td>-<div data-blood="2"></div>
           </td>
@@ -231,9 +234,18 @@
             <div data-sprite="3"></div>
           </td>
           <td>
-            <div data-blood="3"></div>
+            <div data-blood="5"></div>
           </td>
           <td>-<div data-blood="1"></div>
+          </td>
+        </tr>
+        <tr>
+          <td>无</td>
+          <td>无</td>
+          <td>
+            <div data-blood="3"></div>
+          </td>
+          <td>-0
           </td>
         </tr>
       </table>
@@ -274,19 +286,68 @@
           <td>
             <div data-sprite="9"></div>
           </td>
-          <td>一定时间内攻击增加<div data-blood="2"></div>。
+          <td>一定时间内攻击增加<div data-blood="2"></div>。</td>
+        </tr>
+        <tr>
+          <td>冰</td>
+          <td>
+            <div data-sprite="10"></div>
+          </td>
+          <td>周围八格敌方棋子冰冻一定时间。冰可以被TNT炸毁。</td>
+        </tr>
+        <tr>
+          <td>末影珍珠</td>
+          <td>
+            <div data-sprite="11"></div>
+          </td>
+          <td>使用后可以瞬移到任意空格。</td>
+        </tr>
+      </table>
     </div>
-    </td>
-    </tr>
-    <tr>
-      <td>冰</td>
-      <td>
-        <div data-sprite="10"></div>
-      </td>
-      <td>周围八格敌方棋子冰冻一定时间。冰可以被TNT炸毁。</td>
-    </tr>
-    </table>
   </div>
+
+  <div id="version" style="display:none;">
+    <div style="text-align: left;">
+      <h4>更新日志</h4>
+      <h5>Version 0.1.0</h5>
+      初始版本
+      <h5>Version 0.2.0</h5>
+      <ul>
+        <li>修改装备生成系统：中央区域会生成可以捡起的装备</li>
+        <li>添加装备和道具（借鉴自Minecraft）
+          <ul>
+            <li>钻石/金/铁剑</li>
+            <li>钻石/金/铁盔甲</li>
+            <li>TNT</li>
+            <li>治疗药水</li>
+            <li>迅捷药水</li>
+            <li>力量药水</li>
+            <li>冰</li>
+          </ul>
+        </li>
+        <li>将王的初始血量提升至<div data-blood="10"></div>
+        </li>
+        <li>稍稍修改了UI</li>
+      </ul>
+      <h5>Version 0.2.1</h5>
+      <ul>
+        <li>改变了游戏的目标：杀死敌人的王，使他的棋子无法复活，然后杀死他的所有棋子</li>
+        <li>装备可以生成在所有的空格子里，而不只是中央的格子</li>
+        <li>加入道具：末影珍珠（<div data-sprite="11"></div>）</li>
+        <li>增强马：也可以走到相邻4格</li>
+        <li>提高了剑的伤害、TNT的伤害和盔甲的防御</li>
+        <li>现在，产生每种装备的概率是相等的</li>
+        <li>最小的实际攻击伤害改为了<div data-blood="1"></div>，也就是说，没有棋子可以免疫伤害
+        </li>
+        <li>将本更新日志加入了UI</li>
+        <li>修复漏洞：
+          <ul>
+            <li>棋子被击退或复活后可以捡起那一格的装备</li>
+            <li>不再存在一个格子中既有装备又有冰块导致的显示错乱</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
   </div>
   <script>
     $("[data-sprite]").each(function () {
