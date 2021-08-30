@@ -7,10 +7,6 @@
   <title>Kess</title>
   <link rel="stylesheet" href="bootstrap.min.css">
   <style>
-    .highlight {
-      color: red;
-    }
-
     table,
     table tr th,
     table tr td {
@@ -52,6 +48,16 @@
       z-index: 100;
       border: 3px solid rgb(248, 75, 6);
       background: rgba(248, 75, 6, 0.2);
+      width: 50px;
+      height: 50px;
+      position: absolute;
+      cursor: pointer;
+    }
+
+    .go-build {
+      z-index: 100;
+      border: 3px solid rgb(248, 184, 6);
+      background: rgba(248, 184, 6, 0.2);
       width: 50px;
       height: 50px;
       position: absolute;
@@ -177,8 +183,8 @@
   </div>
   <div id="go"></div>
 
-  <div class="button" onclick="giveUp()" style="position: absolute; bottom: 5px; left: 8px;">
-    <img src="img/flag_black_24dp.png">
+  <div class="button" onclick="assess()" style="position: absolute; bottom: 5px; left: 8px;">
+    <img src="img/assessment.png">
   </div>
   <div class="button" onclick="cAlert($('#help').html())" style="position: absolute; bottom: 5px; left: 56px;">
     <img src="img/help_black_24dp.png">
@@ -194,7 +200,7 @@
         <li>Kess的目标是吃掉对方的王，然后吃掉对方所有棋子。失去王后该队棋子不能复活。</li>
         <li>棋盘内会随机出现装备和道具，可以捡起。先点击棋子，再点击弹出框内的道具图标，即可使用道具。</li>
         <li>游戏有击退、吃棋获得装备和道具（仅限正常攻击，道具攻击除外）的机制。</li>
-        <li>提示：喝药水不消耗回合数，也就是说，你可以在一回合内喝任意多瓶药水，然后再走一步棋。</li>
+        <li>提示：喝药水、放置方块不消耗回合数，但是摧毁方块消耗回合数。</li>
       </ul>
       <table>
         <tr>
@@ -303,6 +309,39 @@
           <td>使用后可以瞬移到任意空格。</td>
         </tr>
       </table>
+      <br>
+      <table>
+        <tr>
+          <th style="width: 6em">方块名称</th>
+          <th style="width: 5em">图标</th>
+          <th style="width: 6em">可逾越?</th>
+          <th style="width: 8em">可摧毁之的工具</th>
+        </tr>
+        <tr>
+          <td>石墙</td>
+          <td>
+            <div data-sprite="12"></div>
+            <div data-blocksprite="12"></div>
+          </td>
+          <td>仅<b>猴</b></td>
+          <td>
+            <div data-sprite="0"></div>
+            <div data-sprite="1"></div>
+            <div data-sprite="2"></div>
+          </td>
+        </tr>
+        <tr>
+          <td>铁墙</td>
+          <td>
+            <div data-sprite="13"></div>
+            <div data-blocksprite="13"></div>
+          </td>
+          <td>否</td>
+          <td>
+            <div data-sprite="2"></div>
+          </td>
+        </tr>
+      </table>
     </div>
   </div>
 
@@ -347,11 +386,26 @@
           </ul>
         </li>
       </ul>
+      <h5>Version 0.2.2</h5>
+      <ul>
+        <li>加入了方块：石墙（<div data-sprite="12"></div>
+          <div data-blocksprite="12"></div>）、铁墙（
+          <div data-sprite="13"></div>
+          <div data-blocksprite="13"></div>）
+        </li>
+        <li>移除了贾，因为你可以用墙保护王</li>
+        <li>更改了猴和带有迅捷药水效果的棋子的寻路机制：采用BFS搜索算法而非直接用距离判定，以匹配ybj的Chess</li>
+        <li>将投降按钮改为评估按钮，根据当前局势自动评估哪一方占优</li>
+      </ul>
     </div>
   </div>
   <script>
     $("[data-sprite]").each(function () {
       $(this).css(spriteCssObj(supplySprite[Number($(this).attr("data-sprite"))], 20));
+    });
+    $("[data-blocksprite]").each(function () {
+      $(this).css(blockSpriteCssObj(blockSprite.get(Number($(this).attr("data-blocksprite"))), 20));
+      $(this).css("display", "inline-block");
     });
     $("[data-blood]").each(function () {
       var blood = Number($(this).attr("data-blood"));
