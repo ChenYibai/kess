@@ -7,31 +7,26 @@
   <title>Kess</title>
   <link rel="stylesheet" href="bootstrap.min.css">
   <style>
-    table,
-    table tr th,
-    table tr td {
-      border: 1px solid rgb(185, 185, 185);
+    :root {
+      --color-i: #242424;
+      --color-ii: #f4f4f4;
     }
 
-    table tr th,
-    table tr td {
+    #board,
+    #board tr th,
+    #board tr td {
+      border: 1px solid #916f52;
+      background-color: #bd916b;
+      text-align: center;
+    }
+
+    #board tr th,
+    #board tr td {
       width: 50px;
     }
 
-    table tr {
+    #board tr {
       height: 50px;
-    }
-
-    table {
-      text-align: center;
-      border-collapse: collapse;
-      padding: 2px;
-      border-radius: 5px;
-    }
-
-    .hide {
-      background: #eaeaea;
-      cursor: pointer;
     }
 
     .go-empty {
@@ -65,7 +60,6 @@
     }
 
     .piece {
-      line-height: 50px;
       text-align: center;
       border: 1px solid rgb(185, 185, 185);
       border-radius: 50%;
@@ -77,11 +71,22 @@
     }
 
     .teami {
-      background-color: red;
+      background-color: var(--color-i);
+      color: var(--color-ii);
+    }
+
+    .piece.teami {
+      line-height: 50px;
     }
 
     .teamii {
-      background-color: blue;
+      background-color: var(--color-ii);
+      color: var(--color-i);
+      border: 2px solid var(--color-i);
+    }
+
+    .piece.teamii {
+      line-height: 46px;
     }
 
     #control {
@@ -172,7 +177,7 @@
       <tbody id="board"></tbody>
     </table>
     <div style="text-align: center">
-      <div id="player" style="background: red; margin: 8px;" class="little-square"></div>
+      <div id="player" style="margin: 8px;" class="little-square teami"></div>
     </div>
   </div>
 
@@ -202,145 +207,157 @@
         <li>游戏有击退、吃棋获得装备和道具（仅限正常攻击，道具攻击除外）的机制。</li>
         <li>提示：喝药水、放置方块不消耗回合数，但是摧毁方块消耗回合数。</li>
       </ul>
-      <table>
-        <tr>
-          <th style="width:5.5em">装备类型</th>
-          <th style="width:5em">图标</th>
-          <th style="width:7.5em">剑的攻击力</th>
-          <th style="width:7em">盔甲防御力</th>
-        </tr>
-        <tr>
-          <td>钻石</td>
-          <td>
-            <div data-sprite="2"></div>
-            <div data-sprite="5"></div>
-          </td>
-          <td>
-            <div data-blood="9"></div>
-          </td>
-          <td>-<div data-blood="4"></div>
-          </td>
-        </tr>
-        <tr>
-          <td>金</td>
-          <td>
-            <div data-sprite="1"></div>
-            <div data-sprite="4"></div>
-          </td>
-          <td>
-            <div data-blood="7"></div>
-          </td>
-          <td>-<div data-blood="2"></div>
-          </td>
-        </tr>
-        <tr>
-          <td>铁</td>
-          <td>
-            <div data-sprite="0"></div>
-            <div data-sprite="3"></div>
-          </td>
-          <td>
-            <div data-blood="5"></div>
-          </td>
-          <td>-<div data-blood="1"></div>
-          </td>
-        </tr>
-        <tr>
-          <td>无</td>
-          <td>无</td>
-          <td>
-            <div data-blood="3"></div>
-          </td>
-          <td>-0
-          </td>
-        </tr>
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width:5.5em">装备类型</th>
+            <th style="width:5em">图标</th>
+            <th style="width:7.5em">剑的攻击力</th>
+            <th style="width:7em">盔甲防御力</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>钻石</td>
+            <td>
+              <div data-sprite="2"></div>
+              <div data-sprite="5"></div>
+            </td>
+            <td>
+              <div data-blood="9"></div>
+            </td>
+            <td>-<div data-blood="4"></div>
+            </td>
+          </tr>
+          <tr>
+            <td>金</td>
+            <td>
+              <div data-sprite="1"></div>
+              <div data-sprite="4"></div>
+            </td>
+            <td>
+              <div data-blood="7"></div>
+            </td>
+            <td>-<div data-blood="2"></div>
+            </td>
+          </tr>
+          <tr>
+            <td>铁</td>
+            <td>
+              <div data-sprite="0"></div>
+              <div data-sprite="3"></div>
+            </td>
+            <td>
+              <div data-blood="5"></div>
+            </td>
+            <td>-<div data-blood="1"></div>
+            </td>
+          </tr>
+          <tr>
+            <td>无</td>
+            <td>无</td>
+            <td>
+              <div data-blood="3"></div>
+            </td>
+            <td>-0
+            </td>
+          </tr>
+        </tbody>
       </table>
       <br>
-      <table>
-        <tr>
-          <th style="width: 6em">道具名称</th>
-          <th style="width: 5em">图标</th>
-          <th style="width: 14em">作用</th>
-        </tr>
-        <tr>
-          <td>TNT</td>
-          <td>
-            <div data-sprite="6"></div>
-          </td>
-          <td>
-            使附近的敌方棋子受到伤害。
-            <img src="img/tnt-instr.png" style="width:13em">
-            （数字代表<div data-blood="1"></div>的个数。）
-          </td>
-        </tr>
-        <tr>
-          <td>治疗药水</td>
-          <td>
-            <div data-sprite="7"></div>
-          </td>
-          <td>立即回满血量。</td>
-        </tr>
-        <tr>
-          <td>迅捷药水</td>
-          <td>
-            <div data-sprite="8"></div>
-          </td>
-          <td>一定时间内可以走到方圆3格内的任意一格。</td>
-        </tr>
-        <tr>
-          <td>力量药水</td>
-          <td>
-            <div data-sprite="9"></div>
-          </td>
-          <td>一定时间内攻击增加<div data-blood="2"></div>。</td>
-        </tr>
-        <tr>
-          <td>冰</td>
-          <td>
-            <div data-sprite="10"></div>
-          </td>
-          <td>周围八格敌方棋子冰冻一定时间。冰可以被TNT炸毁。</td>
-        </tr>
-        <tr>
-          <td>末影珍珠</td>
-          <td>
-            <div data-sprite="11"></div>
-          </td>
-          <td>使用后可以瞬移到任意空格。</td>
-        </tr>
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width: 6em">道具名称</th>
+            <th style="width: 5em">图标</th>
+            <th style="width: 14em">作用</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>TNT</td>
+            <td>
+              <div data-sprite="6"></div>
+            </td>
+            <td>
+              使附近的敌方棋子受到伤害，炸毁方块。
+              <img src="img/tnt-instr.png" style="width:13em">
+              （数字代表<div data-blood="1"></div>的个数。）
+            </td>
+          </tr>
+          <tr>
+            <td>治疗药水</td>
+            <td>
+              <div data-sprite="7"></div>
+            </td>
+            <td>立即回满血量。</td>
+          </tr>
+          <tr>
+            <td>迅捷药水</td>
+            <td>
+              <div data-sprite="8"></div>
+            </td>
+            <td>一定时间内可以一次走三格。</td>
+          </tr>
+          <tr>
+            <td>力量药水</td>
+            <td>
+              <div data-sprite="9"></div>
+            </td>
+            <td>一定时间内攻击增加<div data-blood="2"></div>。</td>
+          </tr>
+          <tr>
+            <td>冰</td>
+            <td>
+              <div data-sprite="10"></div>
+            </td>
+            <td>周围八格敌方棋子冰冻一定时间。冰可以被TNT炸毁。</td>
+          </tr>
+          <tr>
+            <td>末影珍珠</td>
+            <td>
+              <div data-sprite="11"></div>
+            </td>
+            <td>使用后可以瞬移到任意空格。</td>
+          </tr>
+        </tbody>
       </table>
       <br>
-      <table>
-        <tr>
-          <th style="width: 6em">方块名称</th>
-          <th style="width: 5em">图标</th>
-          <th style="width: 6em">可逾越?</th>
-          <th style="width: 8em">可摧毁之的工具</th>
-        </tr>
-        <tr>
-          <td>石墙</td>
-          <td>
-            <div data-sprite="12"></div>
-            <div data-blocksprite="12"></div>
-          </td>
-          <td>仅<b>猴</b></td>
-          <td>
-            <div data-sprite="0"></div>
-            <div data-sprite="1"></div>
-            <div data-sprite="2"></div>
-          </td>
-        </tr>
-        <tr>
-          <td>铁墙</td>
-          <td>
-            <div data-sprite="13"></div>
-            <div data-blocksprite="13"></div>
-          </td>
-          <td>否</td>
-          <td>
-            <div data-sprite="2"></div>
-          </td>
-        </tr>
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width: 6em">方块名称</th>
+            <th style="width: 5em">图标</th>
+            <th style="width: 6em">可逾越?</th>
+            <th style="width: 8em">可摧毁之的工具</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>石墙</td>
+            <td>
+              <div data-sprite="12"></div>
+              <div data-blocksprite="12"></div>
+            </td>
+            <td>仅<b>猴</b>与<b>马</b></td>
+            <td>
+              <div data-sprite="0"></div>
+              <div data-sprite="1"></div>
+              <div data-sprite="2"></div>
+            </td>
+          </tr>
+          <tr>
+            <td>砖墙</td>
+            <td>
+              <div data-sprite="13"></div>
+              <div data-blocksprite="13"></div>
+            </td>
+            <td>仅<b>马</b></td>
+            <td>
+              <div data-sprite="2"></div>
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>
@@ -388,14 +405,21 @@
       </ul>
       <h5>Version 0.2.2</h5>
       <ul>
-        <li>加入了方块：石墙（<div data-sprite="12"></div>
-          <div data-blocksprite="12"></div>）、铁墙（
-          <div data-sprite="13"></div>
-          <div data-blocksprite="13"></div>）
-        </li>
+        <li>加入了方块：石墙、铁墙</li>
         <li>移除了贾，因为你可以用墙保护王</li>
         <li>更改了猴和带有迅捷药水效果的棋子的寻路机制：采用BFS搜索算法而非直接用距离判定，以匹配ybj的Chess</li>
         <li>将投降按钮改为评估按钮，根据当前局势自动评估哪一方占优</li>
+      </ul>
+      <h5>Version 0.2.3</h5>
+      <ul>
+        <li>更改了初始布子，并在棋盘中央增加一道横贯棋盘的石墙</li>
+        <li>更改了棋盘和某些界面的外观</li>
+        <li>更改了方块的材质：石墙（<div data-sprite="12"></div>
+          <div data-blocksprite="12"></div>）、砖墙（即原铁墙）（
+          <div data-sprite="13"></div>
+          <div data-blocksprite="13"></div>）
+        </li>
+        <li>TNT可以炸毁方块</li>
       </ul>
     </div>
   </div>
