@@ -12,14 +12,6 @@
       --color-ii: #f4f4f4;
     }
 
-    #board,
-    #board tr th,
-    #board tr td {
-      border: 1px solid #916f52;
-      background-color: #bd916b;
-      text-align: center;
-    }
-
     #board tr th,
     #board tr td {
       width: 50px;
@@ -27,6 +19,35 @@
 
     #board tr {
       height: 50px;
+    }
+
+    .piece {
+      text-align: center;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      position: absolute;
+      color: white;
+      background-size: cover;
+    }
+
+    .teami {
+      background-color: var(--color-i);
+      color: var(--color-ii);
+    }
+
+    .piece.teami {
+      line-height: 50px;
+    }
+
+    .teamii {
+      background-color: var(--color-ii);
+      color: var(--color-i);
+      border: 2px solid var(--color-i);
+    }
+
+    .piece.teamii {
+      line-height: 46px;
     }
 
     .go-empty {
@@ -57,36 +78,6 @@
       height: 50px;
       position: absolute;
       cursor: pointer;
-    }
-
-    .piece {
-      text-align: center;
-      border: 1px solid rgb(185, 185, 185);
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      position: absolute;
-      color: white;
-      background-size: cover;
-    }
-
-    .teami {
-      background-color: var(--color-i);
-      color: var(--color-ii);
-    }
-
-    .piece.teami {
-      line-height: 50px;
-    }
-
-    .teamii {
-      background-color: var(--color-ii);
-      color: var(--color-i);
-      border: 2px solid var(--color-i);
-    }
-
-    .piece.teamii {
-      line-height: 46px;
     }
 
     #control {
@@ -166,6 +157,32 @@
       width: 45px;
     }
   </style>
+  <style data-world="0">
+    .piece:not([data-world="0"]) {
+      display: none;
+    }
+
+    #board,
+    #board tr th,
+    #board tr td {
+      border: 1px solid #916f52;
+      background-color: #bd916b;
+      text-align: center;
+    }
+  </style>
+  <style data-world="1" type="text/plain">
+    .piece:not([data-world="1"]) {
+      display: none;
+    }
+
+    #board,
+    #board tr th,
+    #board tr td {
+      border: 1px solid #6e0606;
+      background-color: #8b0505;
+      text-align: center;
+    }
+  </style>
   <script src="jquery-3.3.1.min.js"></script>
   <script src="bootstrap.bundle.min.js"></script>
   <script src="chess.js"></script>
@@ -178,6 +195,7 @@
     </table>
     <div style="text-align: center">
       <div id="player" style="margin: 8px;" class="little-square teami"></div>
+      <button class="btn btn-outline-dark" style="margin: 8px;" onclick="toggleWorld()">切换世界</button>
     </div>
   </div>
 
@@ -203,17 +221,20 @@
       <h5>规则说明</h5>
       <ul>
         <li>Kess的目标是吃掉对方的王，然后吃掉对方所有棋子。失去王后该队棋子不能复活。</li>
-        <li>棋盘内会随机出现装备和道具，可以捡起。先点击棋子，再点击弹出框内的道具图标，即可使用道具。</li>
-        <li>游戏有击退、吃棋获得装备和道具（仅限正常攻击，道具攻击除外）的机制。</li>
+        <li>棋盘内随机出现装备，可捡起。先点击棋子，再点击弹出框内的道具图标，即可使用道具。</li>
+        <li>吃棋会掉装备。</li>
+        <li>当某个王被吃掉后，会在棋盘中央生成下界传送门（<div data-blocksprite="0"></div>）。踩在传送门上的
+          棋子会被传送到下界。点击“切换世界”按钮以查看下界。下界的中央也有返回主世界的传送门。</li>
         <li>提示：喝药水、放置方块不消耗回合数，但是摧毁方块消耗回合数。</li>
+        <li>提示：开局中央的是石墙，用铁剑及以上方可挖掘之。TNT亦可爆破之。</li>
       </ul>
       <table class="table">
         <thead>
           <tr>
             <th style="width:5.5em">装备类型</th>
             <th style="width:5em">图标</th>
-            <th style="width:7.5em">剑的攻击力</th>
-            <th style="width:7em">盔甲防御力</th>
+            <th style="width:8em">剑的攻击</th>
+            <th style="width:6.5em">盔甲防御</th>
           </tr>
         </thead>
         <tbody>
@@ -224,9 +245,9 @@
               <div data-sprite="5"></div>
             </td>
             <td>
-              <div data-blood="9"></div>
+              <div data-blood="10"></div>
             </td>
-            <td>-<div data-blood="4"></div>
+            <td>-<div data-blood="3"></div>
             </td>
           </tr>
           <tr>
@@ -236,7 +257,7 @@
               <div data-sprite="4"></div>
             </td>
             <td>
-              <div data-blood="7"></div>
+              <div data-blood="9"></div>
             </td>
             <td>-<div data-blood="2"></div>
             </td>
@@ -248,7 +269,7 @@
               <div data-sprite="3"></div>
             </td>
             <td>
-              <div data-blood="5"></div>
+              <div data-blood="8"></div>
             </td>
             <td>-<div data-blood="1"></div>
             </td>
@@ -257,10 +278,9 @@
             <td>无</td>
             <td>无</td>
             <td>
-              <div data-blood="3"></div>
+              <div data-blood="5"></div>
             </td>
-            <td>-0
-            </td>
+            <td>无</td>
           </tr>
         </tbody>
       </table>
@@ -328,8 +348,8 @@
           <tr>
             <th style="width: 6em">方块名称</th>
             <th style="width: 5em">图标</th>
-            <th style="width: 6em">可逾越?</th>
-            <th style="width: 8em">可摧毁之的工具</th>
+            <th style="width: 5.5em">可逾越?</th>
+            <th style="width: 8.5em">可摧毁之的工具</th>
           </tr>
         </thead>
         <tbody>
@@ -339,7 +359,7 @@
               <div data-sprite="12"></div>
               <div data-blocksprite="12"></div>
             </td>
-            <td>仅<b>猴</b>与<b>马</b></td>
+            <td>仅<b>马</b></td>
             <td>
               <div data-sprite="0"></div>
               <div data-sprite="1"></div>
@@ -420,6 +440,13 @@
           <div data-blocksprite="13"></div>）
         </li>
         <li>TNT可以炸毁方块</li>
+      </ul>
+      <h5>Version 0.2.4</h5>
+      <ul>
+        <li>加入了下界，但目前下界没有任何特殊内容</li>
+        <li>增强剑的攻击，削减初始血量，削弱盔甲防御</li>
+        <li>移除击退</li>
+        <li>不再允许猴翻墙</li>
       </ul>
     </div>
   </div>
