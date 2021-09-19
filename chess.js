@@ -20,20 +20,19 @@ var supplySprite = [[20, 113, 1], // 0 Iron Sword
 [16, 9, 1], // 9 Potion of Strength
 [23, 30, 1], // 10 Ice
 [21, 109, 1], // 11 Ender Pearl
-[7, 105, 3], // 12 Mossy Stone Bricks
-[5, 27, 2], // 13 Bricks
+[7, 105, 2], // 12 Mossy Stone Bricks
+[5, 27, 1], // 13 Bricks
 [13, 109, 0] // 14 Bone
 ];
 var supplyW = supplySprite.reduce((p, c) => (p + c[2]), 0);
-var genSupplyP = 0.33; // Probability of generating supply after each go
+var genSupplyP = 1; // Probability of generating supply after each go
 var numJason = 1, // Number of Jasons
-  posJason = [[0, 0], [n - 1, n - 1], [0, n - 1], [n - 1, 0]]; // Initial positions of Jasons
+  posJason = [[0, 0]]; // Initial positions of Jasons
 var swordAttack = [8, 9, 10],
   armorDefence = [1, 2, 3]; // [Iron, Golden, Diamond]
 
 var player = 0;
 var going = 0;
-var killedi = 0, killedii = 0;
 var turn = 0; // number of goes made up to now
 var reviveList = [[], []]; // List of pieces waiting to be revived. reviveList[world][i] = {Piece(), time}
 var curWorld = 0; // Current world shown. 0 = Overworld; 1 = Nether
@@ -473,6 +472,7 @@ function afterGo() {
     if (cnt < 18) {
       $cell(px, py).attr("data-supply", pt)
         .html(`<div style="${spriteCss(supplySprite[pt], 36)}margin:auto;"></div>`);
+      if (pt <= 2) genSupplyP = 0.33; // If a sword is produced, decrease genSupplyP to 1/3
     }
   }
 
