@@ -26,18 +26,22 @@
       border-radius: 50%;
       width: 50px;
       height: 50px;
+      line-height: 46px;
       position: absolute;
       color: white;
       background-size: cover;
     }
 
+    /*
+    teami: board[x][y].team = 0
+    teamii: board[x][y].team = 1
+    teamj: board[x][y].team = 2
+    */
+
     .teami {
       background-color: var(--color-i);
       color: var(--color-ii);
-    }
-
-    .piece.teami {
-      line-height: 50px;
+      border: 2px solid var(--color-i);
     }
 
     .teamii {
@@ -46,8 +50,12 @@
       border: 2px solid var(--color-i);
     }
 
-    .piece.teamii {
+    .piece.teamj {
+      border-radius: 25%;
+      background-color: #ddb70e;
+      border: 2px solid #b37705;
       line-height: 46px;
+      color: var(--color-i);
     }
 
     .go-empty {
@@ -130,17 +138,17 @@
       font-weight: bold;
     }
 
-    .sword-img {
+    .piece .sword-img {
       z-index: 3;
-      top: 3px;
-      left: 18px;
+      top: 1px;
+      left: 16px;
       position: absolute;
     }
 
-    .armor-img {
+    .piece .armor-img {
       z-index: 3;
-      top: 32px;
-      left: 18px;
+      top: 31px;
+      left: 16px;
       position: absolute;
     }
 
@@ -155,6 +163,25 @@
       z-index: 5;
       opacity: 0.92;
       width: 45px;
+    }
+
+    @keyframes jason-bone {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .jason-bone {
+      z-index: 5;
+      width: 50px;
+      position: absolute;
+      transition: 1s;
+      transition-timing-function: ease-in;
+      animation: jason-bone 0.7s linear infinite;
     }
   </style>
   <style data-world="0">
@@ -205,6 +232,7 @@
     <div id="item"></div>
   </div>
   <div id="go"></div>
+  <div id="jason-piece"></div>
 
   <div class="button" onclick="assess()" style="position: absolute; bottom: 5px; left: 8px;">
     <img src="img/assessment.png">
@@ -225,7 +253,9 @@
         <li>吃棋会掉装备。</li>
         <li>当某个王被吃掉后，会在棋盘中央生成下界传送门（<div data-blocksprite="0"></div>）。踩在传送门上的
           棋子会被传送到下界。点击“切换世界”按钮以查看下界。下界的中央也有返回主世界的传送门。</li>
-        <li>提示：喝药水、放置方块不消耗回合数，但是摧毁方块消耗回合数。</li>
+        <li>“贾”会向周围八个方向投掷骨头，伤害为<div data-blood="6"></div>。击败贾可以获得<b>2根</b>骨头
+          （<div data-sprite="14"></div>）。</li>
+        <li>提示：喝药水、投掷骨头、放置方块不消耗回合数，但是摧毁方块消耗回合数。</li>
         <li>提示：开局中央的是石墙，用铁剑及以上方可挖掘之。TNT亦可爆破之。</li>
       </ul>
       <table class="table">
@@ -340,6 +370,17 @@
             </td>
             <td>使用后可以瞬移到任意空格。</td>
           </tr>
+          <tr>
+            <td>骨头</td>
+            <td>
+              <div data-sprite="14"></div>
+            </td>
+            <td>不能自然生成，只能通过击败“贾”获得。
+              每一根骨头可以使该棋子免疫一次伤害（免疫后这根骨头就没了）。
+              若使用骨头，则棋子会向随机方向投掷骨头，对敌方棋子造成
+              <div data-blood="6"></div>的伤害。
+            </td>
+          </tr>
         </tbody>
       </table>
       <br>
@@ -447,6 +488,17 @@
         <li>增强剑的攻击，削减初始血量，削弱盔甲防御</li>
         <li>移除击退</li>
         <li>不再允许猴翻墙</li>
+      </ul>
+      <h5>Version 0.3.0</h5>
+      <ul>
+        <li>加入了下界生物：贾（贾森）</li>
+        <li>加入了道具：骨头（<div data-sprite="14"></div>）</li>
+        <li>修复漏洞：
+          <ul>
+            <li>棋子可能通过复活实现跨世界穿越</li>
+            <li>评估时不会统计下界的棋子和等待复活的棋子</li>
+          </ul>
+        </li>
       </ul>
     </div>
   </div>

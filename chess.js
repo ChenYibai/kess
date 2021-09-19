@@ -20,11 +20,14 @@ var supplySprite = [[20, 113, 1], // 0 Iron Sword
 [16, 9, 1], // 9 Potion of Strength
 [23, 30, 1], // 10 Ice
 [21, 109, 1], // 11 Ender Pearl
-[7, 105, 4], // 12 Mossy Stone Bricks
+[7, 105, 3], // 12 Mossy Stone Bricks
 [5, 27, 2], // 13 Bricks
+[13, 109, 0] // 14 Bone
 ];
 var supplyW = supplySprite.reduce((p, c) => (p + c[2]), 0);
 var genSupplyP = 0.33; // Probability of generating supply after each go
+var numJason = 1, // Number of Jasons
+  posJason = [[0, 0], [n - 1, n - 1], [0, n - 1], [n - 1, 0]]; // Initial positions of Jasons
 var swordAttack = [8, 9, 10],
   armorDefence = [1, 2, 3]; // [Iron, Golden, Diamond]
 
@@ -32,7 +35,7 @@ var player = 0;
 var going = 0;
 var killedi = 0, killedii = 0;
 var turn = 0; // number of goes made up to now
-var reviveList = []; // List of pieces waiting to be revived. Format: [[newPiece(), time]]
+var reviveList = [[], []]; // List of pieces waiting to be revived. reviveList[world][i] = {Piece(), time}
 var curWorld = 0; // Current world shown. 0 = Overworld; 1 = Nether
 
 // Basic helper functions
@@ -170,8 +173,18 @@ window.onload = function () {
   }
   $(".piece").append(`<div class="sword-img"></div><div class="armor-img"></div>`);
 
-  // Initialize Nether Portal in the Nether
+  // Initialize the Nether: Jasons and Nether Portal
   toggleWorld();
+  for (let i = 0; i < numJason; i++) {
+    var spx = posJason[i][0], spy = posJason[i][1];
+    board[spx][spy] = newPiece({ team: 2, level: i });
+    $("#jason-piece").append(`<div class="piece teamj" id="piece${32 + i}"
+    data-world="1" style="${pos(spx, spy)}"
+    onmouseover="infoBox(${spx}, ${spy})"
+    onmouseout="clearInfoBox()">贾
+    <div class="sword-img"></div><div class="armor-img"></div></div>`);
+    giveSupply(spx, spy, 4);
+  }
   build(4, 4, 0);
   toggleWorld();
 }
@@ -183,7 +196,7 @@ function infoBox(x, y) {
   $("#item").empty();
   let boardXY = board[x][y];
   if (boardXY.frozen) return;
-  document.getElementById("control-name").innerHTML = nam[boardXY.level];
+  $("#control-name").html(boardXY.team == 2 ? "贾" : nam[boardXY.level]);
   for (let i = 1; i * 2 <= boardXY.blood; i++)
     $("#blood").append(`<img src="img/heart.png" style="width: 20px">`);
   if (boardXY.blood % 2)
@@ -354,6 +367,22 @@ function control(x, y) {
   if (going == 2) going = 1;
 }
 
+// Give the piece on (x, y) the damage of d
+// Note: Remember to handle the case manually that the piece is knocked out
+function damagePiece(x, y, d) {
+  var boneFlag = false;
+  for (var i in board[x][y].item) {
+    var item = board[x][y].item[i];
+    if (item == 14) {
+      boneFlag = true;
+      board[x][y].item.splice(i, 1);
+      break;
+    }
+  }
+  if (!boneFlag)
+    board[x][y].blood -= Math.max(1, d - board[x][y].armor);
+}
+
 // The 3 functions below are just for displaying.
 // They don't change the value of `board`, so you should change it manually.
 // Just to move a piece without considering anything else
@@ -370,8 +399,8 @@ function movePiece(x, y, nx, ny) {
 }
 // Display a piece as dead (put it out of the board)
 var killPiecePos = 0;
-var kingAlive = [1, 1]; // kingAlive[team] = if king of the team is alive
-var killedNum = [0, 0]; // killedNum[team] = number of killed pieces of the team
+var kingAlive = [1, 1, 1]; // kingAlive[team] = if king of the team is alive
+var killedNum = [0, 0, 0]; // killedNum[team] = number of killed pieces of the team
 function killPiece(x, y) {
   var bxy = board[x][y];
   var ele = document.getElementById("piece" + String(Number(bxy.team) * 16 + Number(bxy.level)));
@@ -391,7 +420,7 @@ function killPiece(x, y) {
   $(ele).children(".armor-img").css("background", "none");
   $cell(x, y).empty();
   if (kingAlive[bxy.team])
-    reviveList.push([bxy, 5]); // `5` means reviving after 5 goes
+    reviveList[curWorld].push([bxy, 5]); // `5` means reviving after 5 goes
   else killedNum[bxy.team]++;
 
   if (killedNum[0] == m) cAlert("<h2>白棋胜!</h2>");
@@ -399,9 +428,7 @@ function killPiece(x, y) {
 }
 // Display a piece as alive (put it back in the board)
 function revivePiece(i, nx, ny) {
-  // if (bxy[0] == 0) killedi--;
-  // else killedii--;
-  var bxy = reviveList[i][0];
+  var bxy = reviveList[curWorld][i][0];
   var ele = document.getElementById("piece" + String(Number(bxy.team) * 16 + Number(bxy.level)));
   $(ele).css(posObj(nx, ny));
   ele.onclick = function () {
@@ -410,7 +437,7 @@ function revivePiece(i, nx, ny) {
   ele.onmouseover = function () {
     infoBox(nx, ny);
   }
-  reviveList.splice(i, 1);
+  reviveList[curWorld].splice(i, 1);
   pickUp(nx, ny, nx, ny);
 }
 
@@ -450,8 +477,8 @@ function afterGo() {
   }
 
   // Revive pieces
-  for (var i in reviveList) {
-    var item = reviveList[i];
+  for (var i in reviveList[curWorld]) {
+    var item = reviveList[curWorld][i];
     item[1]--;
     if (item[1] == 0) {
       var rx, ry;
@@ -471,6 +498,8 @@ function afterGo() {
       }
       board[rx][ry] = newPiece({ team: item[0].team, level: item[0].level });
       revivePiece(i, rx, ry);
+      if (board[rx][ry].team == 2)
+        giveSupply(rx, ry, 4);
     }
   }
 
@@ -481,34 +510,83 @@ function afterGo() {
     board[i][j].frozen = Math.max(0, board[i][j].frozen - 1);
     if (board[i][j].frozen == 0) $cell(i, j).children(".frozen-img").remove();
   }
+
+  // Move Jasons automatically
+  var vis = new Array();
+  for (var i = 0; i < numJason; i++) vis.push(0);
+  if (curWorld == 1) {
+    for (var i = 0; i < n; i++) for (var j = 0; j < n; j++)
+      if (board[i][j] != -1 && board[i][j].team == 2 && !vis[board[i][j].level]) {
+        vis[board[i][j].level] = 1;
+        // Attack
+        var dx = [-1, 0, 1, -1, 1, -1, 0, 1], dy = [-1, -1, -1, 0, 0, 1, 1, 1];
+        var attacked = false;
+        for (var z = 0; z < 16; z++) {
+          var d = Math.floor(Math.random() * 8);
+          let nx = i + dx[d], ny = j + dy[d];
+          while (passingQ(i, j, nx, ny)) nx += dx[d], ny += dy[d];
+          if (inBoard(nx, ny) && board[nx][ny] != -1 && board[nx][ny].team <= 1) {
+            var ele = $(`<img src="img/bone.png" class="jason-bone" style="${pos(i, j)}">`);
+            ele.appendTo("body");
+            setTimeout(function (ele) {
+              ele.css(posObj(nx, ny));
+              setTimeout(function (ele) {
+                ele.remove();
+                damagePiece(nx, ny, 6);
+                if (board[nx][ny].blood <= 0) {
+                  killPiece(nx, ny);
+                  board[nx][ny] = -1;
+                }
+              }, 1000, ele);
+            }, 100, ele);
+            attacked = true;
+            break;
+          }
+        }
+        // Wander
+        if (!attacked) {
+          var d = Math.floor(Math.random() * 8);
+          var loopCnt = 0;
+          while (!emptyQ(i + dx[d], j + dy[d]) && loopCnt < 16)
+            d = Math.floor(Math.random() * 8), loopCnt++;
+          if (loopCnt < 16)
+            go(i, j, i + dx[d], j + dy[d], true);
+        }
+      }
+  }
+}
+
+// Give the supply whose ID is "supply" to the piece on (x, y)
+function giveSupply(x, y, supply) {
+  if (supply >= 0 && supply <= 2) { // Sword
+    if (swordAttack[supply] >= board[x][y].attack) {
+      board[x][y].attack = swordAttack[supply];
+      // Display it on the piece
+      $piece(x, y).children(".sword-img").css(spriteCssObj(supplySprite[supply], 15));
+    }
+  }
+  else if (supply >= 3 && supply <= 5) { // Armor
+    if (armorDefence[supply - 3] >= board[x][y].armor) {
+      board[x][y].armor = armorDefence[supply - 3];
+      $piece(x, y).children(".armor-img").css(spriteCssObj(supplySprite[supply], 15));
+    }
+  }
+  else { // Item
+    board[x][y].item.push(supply);
+  }
 }
 
 // The piece on (x, y) picks up supply on (nx, ny)
 function pickUp(x, y, nx, ny) {
   var supply = dataSupply(nx, ny);
   if (supply != -1) {
-    if (supply >= 0 && supply <= 2) { // Sword
-      if (swordAttack[supply] > board[x][y].attack) {
-        board[x][y].attack = swordAttack[supply];
-        // Display it on the piece
-        $piece(x, y).children(".sword-img").css(spriteCssObj(supplySprite[supply], 15));
-      }
-    }
-    else if (supply >= 3 && supply <= 5) { // Armor
-      if (armorDefence[supply - 3] > board[x][y].armor) {
-        board[x][y].armor = armorDefence[supply - 3];
-        $piece(x, y).children(".armor-img").css(spriteCssObj(supplySprite[supply], 15));
-      }
-    }
-    else { // Item
-      board[x][y].item.push(supply);
-    }
+    giveSupply(x, y, supply);
     $cell(nx, ny).attr("data-supply", -1).html("");
   }
 }
 
 // Move a piece from (x, y) to (nx, ny)
-function go(x, y, nx, ny) {
+function go(x, y, nx, ny, withoutAfterGo) {
   let bxy = board[x][y], nbxy = board[nx][ny];
   if (emptyQ(nx, ny)) { // Steps into empty square
     movePiece(x, y, nx, ny);
@@ -517,19 +595,19 @@ function go(x, y, nx, ny) {
     board[x][y] = -1;
   }
   else if (nbxy != -1) { // Attack another piece
-    board[nx][ny].blood -= Math.max(1, board[x][y].attack
-      + (board[x][y].potionStrength ? 2 : 0) - board[nx][ny].armor);
     nbxy = board[nx][ny]; bxy = board[x][y];
+    damagePiece(nx, ny, board[x][y].attack + (board[x][y].potionStrength ? 2 : 0));
     if (nbxy.blood <= 0) { // Knock Out
       killPiece(nx, ny);
       bxy.attack = Math.max(bxy.attack, nbxy.attack), nbxy.attack = 0; // Transfer sword
       if (bxy.attack > initAttack)
-        $piece(x, y).children(".sword-img").css(spriteCssObj(supplySprite[swordAttack.indexOf(bxy.attack)], 15));
+        giveSupply(x, y, swordAttack.indexOf(bxy.attack));
       bxy.armor = Math.max(bxy.armor, nbxy.armor), nbxy.armor = 0; // Transfer armor
       if (bxy.armor > 0)
-        $piece(x, y).children(".armor-img").css(spriteCssObj(supplySprite[armorDefence.indexOf(bxy.armor) + 3], 15));
+        giveSupply(x, y, armorDefence.indexOf(bxy.armor) + 3);
       bxy.item = bxy.item.concat(nbxy.item); // Transfer item
       movePiece(x, y, nx, ny);
+      if (nbxy.team == 2) giveSupply(x, y, 14), giveSupply(x, y, 14);
       board[x][y] = -1; board[nx][ny] = bxy;
     }
   }
@@ -539,7 +617,7 @@ function go(x, y, nx, ny) {
   else if (dataBlock(nx, ny) != -1) { // Distroy block
     destroy(nx, ny);
   }
-  afterGo();
+  if (withoutAfterGo != true) afterGo();
 }
 
 // blockSprite[id] = [spriteX, spriteY]
@@ -573,7 +651,7 @@ function useItem(item, x, y) {
           }
           // TNT hurts enemy's pieces
           if (board[i][j].team != board[x][y].team) {
-            board[i][j].blood -= Math.max(1, 11 - dist - board[i][j].armor);
+            damagePiece(i, j, 11 - dist);
             if (board[i][j].blood <= 0) {
               killPiece(i, j);
               board[i][j] = -1;
@@ -631,6 +709,37 @@ function useItem(item, x, y) {
       });
       $(".go-kill").remove();
       break;
+    case 14:
+      var dx = [-1, 0, 1, -1, 1, -1, 0, 1], dy = [-1, -1, -1, 0, 0, 1, 1, 1];
+      var attacked = false;
+      for (var d0 = Math.floor(Math.random() * 8); d0 <= 16; d0++) {
+        var d = d0 % 8;
+        let nx = x + dx[d], ny = y + dy[d];
+        while (passingQ(x, y, nx, ny)) nx += dx[d], ny += dy[d];
+        if (inBoard(nx, ny) && board[nx][ny] != -1 && board[nx][ny].team != board[x][y].team) {
+          var ele = $(`<img src="img/bone.png" class="jason-bone" style="${pos(x, y)}">`);
+          ele.appendTo("body");
+          setTimeout(function (ele) {
+            ele.css(posObj(nx, ny));
+            setTimeout(function (ele) {
+              ele.remove();
+              damagePiece(nx, ny, 6);
+              if (board[nx][ny].blood <= 0) {
+                killPiece(nx, ny);
+                board[nx][ny] = -1;
+              }
+            }, 1000, ele);
+          }, 100, ele);
+          attacked = true;
+          break;
+        }
+      }
+      afterItem();
+      if (!attacked) {
+        cAlert("无法找到攻击目标。");
+        return;
+      }
+      break;
   }
 
   // Remove the item from the piece's "item" property
@@ -644,26 +753,32 @@ function useItem(item, x, y) {
 function assess() {
   var res = [kingAlive[0] * 400, kingAlive[1] * 400]; // Final result
   var weight = [100, 100, 110, 110, 45, 45, 110, 110, 600]; // Weights of each piece
-  for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) {
-    if (board[i][j] == -1) continue;
-    var t = board[i][j].team; // The piece's team
-    var wt = weight[board[i][j].level]; // Weight of the current piece
-    var addition = 0; // Additional score (equips, items, etc.)
-    addition += Math.max(0, wt * 0.18 * (board[i][j].attack - 6)); // Swords
-    addition += wt * 0.27 * (board[i][j].armor); // Armor
-    var itm = new Array(); // tmp[i] = Number of item i that the piece has
-    for (var k = 0; k < 50; k++) itm.push(0);
-    for (var item of board[i][j].item) itm[item]++; // Count the items that the piece has
-    addition += (Math.min(itm[6] * 15, 55) + itm[7] * 60
-      + Math.min((itm[8] + itm[9]) * 10, 35)
-      + Math.min((itm[10] + itm[11]) * 8, 15)); // Compute the additional score
-    // The less blood it has, the less additional score it can get (its weight as well if king is dead)
-    var bloodRatio = board[i][j].blood / initBlood;
-    res[t] += (addition * bloodRatio + wt * (kingAlive[t] && board[i][j].level != 8 ? 1 : bloodRatio));
+  function func(board, world) {
+    for (var i = 0; i < n; i++) for (var j = 0; j < n; j++) {
+      if (board[i][j] == -1) continue;
+      var t = board[i][j].team; // The piece's team
+      if (t > 1) continue;
+      var wt = weight[board[i][j].level]; // Weight of the current piece
+      var addition = 0; // Additional score (equips, items, etc.)
+      addition += Math.max(0, wt * 0.18 * (board[i][j].attack - 6)); // Swords
+      addition += wt * 0.27 * (board[i][j].armor); // Armor
+      var itm = new Array(); // tmp[i] = Number of item i that the piece has
+      for (var k = 0; k < 50; k++) itm.push(0);
+      for (var item of board[i][j].item) itm[item]++; // Count the items that the piece has
+      addition += (Math.min(itm[6] * 15, 55) + itm[7] * 60
+        + Math.min((itm[8] + itm[9]) * 10, 35)
+        + Math.min((itm[10] + itm[11]) * 8, 15)); // Compute the additional score
+      // The less blood it has, the less additional score it can get (its weight as well if king is dead)
+      var bloodRatio = board[i][j].blood / initBlood;
+      res[t] += (addition * bloodRatio + wt * (kingAlive[t] && board[i][j].level != 8 ? 1 : bloodRatio));
+    }
+    for (var item of reviveList[world]) {
+      if (item[0].team <= 1)
+        res[item[0].team] += weight[item[0].level] * 0.9;
+    }
   }
-  for (var item of reviveList) {
-    res[item.team] += weight[item.level] * 0.9;
-  }
+  func(board, curWorld);
+  func(alterBoard, 1 - curWorld);
   res = res.map((x) => (Math.round(x * 10) / 10));
   cAlert(`当前局面评估结果：<br>
   黑 <b style="color:#dc3545">${res[0]}：${res[1]}</b> 白<br>
